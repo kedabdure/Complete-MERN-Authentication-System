@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import userModel from '../models/user.model.js';
+import transporter from '../config/nodemailer.js';
 
 export const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -33,7 +34,18 @@ export const register = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     })
 
-    res.json({ success: true, message: "User created successfully" });
+    // Sending Welcome Email
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: email,
+      subject: "Welcome to our platform",
+      text: `Welcome to Nexaddis, ${name}. We are glad to have you on board`
+    }
+
+    await transporter.sendMail(mailOptions);
+
+    return res.json({ success: true, message: "User created successfully" });
+
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -84,7 +96,7 @@ export const logout = async (req, res) => {
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
     });
 
-    return res.json({success: true, message: "Logged out successfully"});
+    return res.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
