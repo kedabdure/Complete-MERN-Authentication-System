@@ -36,7 +36,7 @@ export const register = async (req, res) => {
 
     // Sending Welcome Email
     const mailOptions = {
-      from: process.env.SMTP_USER,
+      from: process.env.SENDER_EMAIL,
       to: email,
       subject: "Welcome to our platform",
       text: `Welcome to Nexaddis, ${name}. We are glad to have you on board`
@@ -51,7 +51,6 @@ export const register = async (req, res) => {
   }
 
 }
-
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -97,6 +96,89 @@ export const logout = async (req, res) => {
     });
 
     return res.json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+}
+
+export const sendVerifyOtp = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" })
+    }
+
+    if (user.isVerified) {
+      return res.json({ success: false, message: "User is already verified" })
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.verifyOtp = otp;
+
+    user.verifyOtpExpireAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+    await user.save();
+
+    console.log(process.env.SENDER_EMAIL)
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Verify your email",
+      text: `Your OTP is ${otp} valid for 24 hours. Please do not share this with anyone`
+    }
+
+    await transporter.sendMail(mailOptions);
+
+    res.json({ success: true, message: "OTP sent successfully" });
+
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
+
+export const verifyEmail = async (req, res) => {
+  const { userId, otp } = req.body;
+
+  if (!userId || !otp) {
+    return res.json({ success: false, massage: "Missing Required Details" });
+  }
+
+  try {
+    const user = await userModel.findById(userId);
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    if (user.veryOtp === '' || user.verifyOtp !== otp) {
+      return res.json({ success: false, message: "Invalid OTP" });
+    }
+
+    if (user.verifyOtpExpires < Date.now()) {
+      return res.json({ success: false, message: "OTP expired" });
+    }
+
+    user.isAccountVerified = true;
+    user.verifyOtp = '';
+    user.verifyOtpExpireAt = '';
+
+    await user.save();
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Email verified",
+      text: `Your email is verified successfully!. Welcome to our platform`
+    }
+
+    await transporter.sendMail(mailOptions);
+
+    return res.json({ success: true, message: "Email verified successfully" });
+
   } catch (error) {
     return res.json({ success: false, message: error.message });
   }
