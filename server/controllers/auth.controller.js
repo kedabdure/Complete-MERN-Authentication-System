@@ -162,7 +162,7 @@ export const verifyEmail = async (req, res) => {
 
     user.isAccountVerified = true;
     user.verifyOtp = '';
-    user.verifyOtpExpireAt = '';
+    user.verifyOtpExpireAt = 0;
 
     await user.save();
 
@@ -203,7 +203,7 @@ export const sendResetOtp = async (req, res) => {
     }
 
     const otp = String(Math.floor(100000 + Math.random() * 900000));
-    
+
     user.resetOtp = otp;
     user.resetOtpExpiredAt = Date.now() + 15 * 60 * 1000; // 15 minutes
 
@@ -219,6 +219,53 @@ export const sendResetOtp = async (req, res) => {
     await transporter.sendMail(mailOptions);
 
     return res.json({ success: true, message: "OTP sent successfully" });
+
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
+  }
+}
+
+export const resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword) {
+    return res.json({ success: false, message: "Email, OTP and new password are required" });
+  }
+
+  try {
+
+    const user = await userModel.findOne({ email })
+
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    if (user.resetOtp === '' || user.resetOtp !== otp) {
+      return res.json({ success: false, message: "Invalid OTP" });
+    }
+
+    if (user.resetOtpExpiredAt < Date.now()) {
+      return res.json({ success: false, message: "OTP expired" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+
+    user.resetOtp = '';
+    user.resetOtpExpiredAt = 0;
+    await user.save();
+
+
+    const mailOptions = {
+      from: process.env.SENDER_EMAIL,
+      to: user.email,
+      subject: "Password reset successful",
+      text: "Your password has been reset successfully"
+    }
+
+    await transporter.sendMail(mailOptions);
+
+    return res.json({ success: true, message: "Password reset successfully" });
 
   } catch (error) {
     return res.json({ success: false, message: error.message });
