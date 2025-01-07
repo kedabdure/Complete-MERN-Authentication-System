@@ -22,3 +22,20 @@ export const getUserDate = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 }
+
+
+export const getUsersData = async (req, res) => {
+  try {
+    const users = await userModel.find();
+
+    if (!users) {
+      return res.json({ success: false, message: "User not found" })
+    }
+
+    res.json({
+      success: true, usersDate: users
+    })
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+}
