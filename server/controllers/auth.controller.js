@@ -122,8 +122,6 @@ export const sendVerifyOtp = async (req, res) => {
 
     await user.save();
 
-    console.log(process.env.SENDER_EMAIL)
-
     const mailOptions = {
       from: process.env.SENDER_EMAIL,
       to: user.email,
@@ -189,5 +187,26 @@ export const isAuthenticated = async (req, res) => {
     return res.json({ success: true, message: "Authenticated" });
   } catch (error) {
     res.json({ success: false, message: error.message });
+  }
+}
+
+export const sendResetOtp = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.json({ success: false, message: "Email is required" });
+  }
+
+  try {
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: "User not found" });
+    }
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.resetOtp = otp;
+
+
+  } catch (error) {
+    return res.json({ success: false, message: error.message });
   }
 }
