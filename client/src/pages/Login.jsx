@@ -11,10 +11,16 @@ const Login = () => {
 
   const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContext)
 
+  const initialValues = {
+    name: '',
+    email: '',
+    password: '',
+  }
+
   const [state, setState] = useState('Sign Up');
-  const [name, setName] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [name, setName] = useState(initialValues.name);
+  const [email, setEmail] = useState(initialValues.email);
+  const [password, setPassword] = useState(initialValues.password);
 
 
   const onSubmitHandler = async (e) => {

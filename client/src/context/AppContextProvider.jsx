@@ -7,8 +7,10 @@ import axios from "axios";
 
 export const AppContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL
-  const [isLogged, setIsLoggedin] = useState(false)
+  const [isLoggedin, setIsLoggedin] = useState(false)
   const [userData, setUserData] = useState(false)
+
+  axios.defaults.withCredentials = true
 
   const getAuthState = async () => {
     try {
@@ -33,7 +35,7 @@ export const AppContextProvider = (props) => {
 
   const value = {
     backendUrl,
-    isLogged, setIsLoggedin,
+    isLoggedin, setIsLoggedin,
     userData, setUserData,
     getUserData,
   }
