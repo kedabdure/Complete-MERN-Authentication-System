@@ -11,7 +11,7 @@ const Header = () => {
       <img src={assets.header_img} alt="header image"
         className='w-36 h-36 rounded-full mb-6 ' />
       <h1 className="">Hey {userData ? userData.name : "Developer"}
-        <img src={assets.hand_wave} alt="hand wave" className='w-8 aspect-square' />
+        <img src={assets.hand_wave} alt="hand wave" className='w-8 aspect-square mx-auto' />
       </h1>
       <h2 className='text-3xl sm:text-5xl font-semibold mb-4'>Welcome to out app</h2>
       <p className='mb-8 mx-w-md'>Let&apos;s start with a quick product tour and we will have you up and running in no time!</p>
