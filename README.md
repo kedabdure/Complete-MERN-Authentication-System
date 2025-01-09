@@ -6,6 +6,8 @@ This project is a robust authentication system built with the MERN stack (MongoD
 ![s2](readme-assets/signup.png)
 ![s3](readme-assets/reset-password.png)
 ![s4](readme-assets/otp-page.png)
+![s4](readme-assets/email-sent.png)
+![s4](readme-assets/loggedin.png)
 
 ## Features
 
