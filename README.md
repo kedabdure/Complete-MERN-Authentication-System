@@ -2,6 +2,11 @@
 
 This project is a robust authentication system built with the MERN stack (MongoDB, Express.js, React.js, Node.js). It includes user registration, login, and password reset functionality, ensuring secure access with JWT-based authentication and email communication via Nodemailer and Brevo.
 
+![s1](readme-assets/hero.png)
+![s2](readme-assets/signup.png)
+![s3](readme-assets/reset-password.png)
+![s4](readme-assets/otp-page.png)
+
 ## Features
 
 - **User Registration**:
